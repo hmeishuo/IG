@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IG 抽獎工具</title>
+    <style>
+        :root { --ig-gradient: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; max-width: 700px; margin: 40px auto; padding: 20px; line-height: 1.6; background-color: #fafafa; color: #262626; }
+        .card { background: white; border: 1px solid #dbdbdb; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        h2 { text-align: center; margin-bottom: 30px; color: #262626; }
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; font-size: 14px; }
+        textarea { width: 100%; height: 180px; padding: 12px; border: 1px solid #dbdbdb; border-radius: 4px; resize: vertical; box-sizing: border-box; font-size: 14px; }
+        .file-upload { margin-bottom: 20px; padding: 15px; border: 2px dashed #dbdbdb; border-radius: 6px; text-align: center; cursor: pointer; transition: 0.3s; }
+        .file-upload:hover { border-color: #bc1888; background-color: #fff5f8; }
+        .controls { display: flex; gap: 20px; align-items: center; margin-bottom: 25px; font-size: 14px; }
+        button { width: 100%; padding: 12px; border: none; border-radius: 6px; background: var(--ig-gradient); color: white; font-size: 16px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        button:active { transform: scale(0.98); }
+        .result { margin-top: 30px; padding: 20px; border-radius: 8px; background-color: #fff; border-left: 5px solid #bc1888; display: none; animation: fadeIn 0.5s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .winner-list { list-style: none; padding: 0; }
+        .winner-item { padding: 12px; border-bottom: 1px solid #eee; font-size: 16px; color: #262626; line-height: 1.5; }
+        .winner-account { color: #bc1888; font-weight: bold; font-size: 18px; display: block; margin-bottom: 4px; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>IG 留言抽獎平台</h2>
+
+    <div class="input-group">
+        <label>快速匯入名單：</label>
+        <div class="file-upload" onclick="document.getElementById('csvFileInput').click()">
+            <p id="fileStatus">點擊此處或拖放 CSV 檔案來匯入</p>
+            <input type="file" id="csvFileInput" accept=".csv" style="display:none" onchange="handleFileSelect(event)">
+        </div>
+    </div>
+
+    <div class="input-group">
+        <label>參與者名單 (每行一筆)：</label>
+        <textarea id="participants" placeholder="👤 @user1 💬 想要！&#10;👤 @user2 💬 推一個&#10;👤 @user3 💬 抽我抽我"></textarea>
+    </div>
+
+    <div class="controls">
+        <label><input type="checkbox" id="removeDuplicates" checked> 排除重複帳號</label>
+        <label>抽出人數：<input type="number" id="winnerCount" value="1" min="1" style="width: 50px; padding: 4px;"></label>
+    </div>
+
+    <button onclick="drawWinners()">✨ 開始抽獎</button>
+
+    <div id="resultBox" class="result">
+        <h3>🎉 恭喜幸運兒：</h3>
+        <ul id="winnerList" class="winner-list"></ul>
+    </div>
+</div>
+
+<script>
+    // 處理 CSV 檔案讀取
+    function handleFileSelect(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const text = e.target.result;
+            // 處理 CSV：將每一行取出來，並過濾掉空行
+            const rows = text.split(/\r?\n/).filter(row => row.trim() !== "");
+            
+            const cleanedRows = rows.map(row => {
+                // 【精準抓取邏輯】
+                // 1. (@[\w\.]+) 抓取以 @ 開頭的 IG 帳號 (包含英數字、底線、小數點)
+                // 2. \s* 略過帳號與留言中間的空白
+                // 3. (.*?)(?=") 抓取剩下的留言內容，直到遇到 CSV 欄位的結尾雙引號為止
+                const match = row.match(/(@[\w\.]+)\s*(.*?)(?=")/);
+                
+                if (match) {
+                    const username = match[1]; // 帳號，例如 @hyssteen_
+                    const comment = match[2].trim(); // 留言內容
+                    
+                    // 格式化輸出：讓帳號與留言一目了然
+                    if (comment !== "") {
+                        return `👤 ${username} 💬 ${comment}`;
+                    } else {
+                        return `👤 ${username}`; // 只有標記帳號，沒打字的情況
+                    }
+                }
+                return null;
+            }).filter(row => row !== null); // 把沒有 @ 的行（例如標題列）過濾掉
+            
+            // 將過濾後乾淨的資料填入文字框
+            document.getElementById('participants').value = cleanedRows.join('\n');
+            document.getElementById('fileStatus').innerText = `過濾成功！已匯入 ${cleanedRows.length} 筆資料`;
+            document.getElementById('fileStatus').style.color = "#28a745";
+        };
+        reader.readAsText(file);
+    }
+
+    // 抽獎邏輯
+    function drawWinners() {
+        const text = document.getElementById('participants').value;
+        const removeDuplicates = document.getElementById('removeDuplicates').checked;
+        const count = parseInt(document.getElementById('winnerCount').value);
+        
+        let list = text.split('\n').map(item => item.trim()).filter(item => item !== '');
+
+        if (list.length === 0) {
+            alert('名單是空的，請先匯入 CSV 或手動輸入留言！');
+            return;
+        }
+
+        if (removeDuplicates) {
+            // 排除重複邏輯強化：只比對「👤 @帳號」的部分，防止同一人留不同言被抽中兩次
+            const uniqueMap = new Map();
+            list.forEach(item => {
+                const usernameMatch = item.match(/👤 (@[\w\.]+)/);
+                const key = usernameMatch ? usernameMatch[1] : item; // 抓不到帳號就用整行當 key
+                if (!uniqueMap.has(key)) {
+                    uniqueMap.set(key, item);
+                }
+            });
+            list = Array.from(uniqueMap.values());
+        }
+
+        if (count > list.length) {
+            alert('抽出人數不能大於參與人數！');
+            return;
+        }
+
+        // 亂數洗牌 (Fisher-Yates Shuffle)
+        for (let i = list.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [list[i], list[j]] = [list[j], list[i]];
+        }
+
+        // 取出前 N 名
+        const winners = list.slice(0, count);
+
+        // 顯示結果
+        const resultBox = document.getElementById('resultBox');
+        const winnerListUI = document.getElementById('winnerList');
+        winnerListUI.innerHTML = "";
+        
+        winners.forEach(w => {
+            const li = document.createElement('li');
+            li.className = "winner-item";
+            
+            // 抽獎結果 UI 美化：把帳號和留言用不同樣式分開顯示
+            const splitMatch = w.match(/👤 (@[\w\.]+)\s*(?:💬 (.*))?/);
+            if (splitMatch) {
+                const username = splitMatch[1];
+                const comment = splitMatch[2] || "無留言內容";
+                li.innerHTML = `<span class="winner-account">${username}</span>留言：${comment}`;
+            } else {
+                li.innerText = w; // 例外狀況，直接顯示原字串
+            }
+            
+            winnerListUI.appendChild(li);
+        });
+
+        resultBox.style.display = 'block';
+        resultBox.scrollIntoView({ behavior: 'smooth' });
+    }
+</script>
+
+</body>
+</html>
