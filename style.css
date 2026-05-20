@@ -95,6 +95,30 @@ input[type="file"]:hover {
     margin-left: 8px;
 }
 
+/*關鍵字輸入框的專屬外觀 */
+#keywordFilter {
+    width: 100%;
+    padding: 15px;
+    border: 2px dashed #dbdbdb;
+    border-radius: 8px;
+    box-sizing: border-box;
+    background: #fafafa;
+    
+    color: #1a0614; 
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+#keywordFilter:focus {
+    outline: none;
+    border-color: #bc1888;
+    background: #fff5f8;
+}
+#keywordFilter::placeholder {
+    color: #b3b3b3;
+    font-weight: normal;
+}
+
 button {
     width: 100%;
     padding: 15px;
