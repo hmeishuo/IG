@@ -36,7 +36,6 @@ document.getElementById('csvFile').addEventListener('change', function () {
   const reader = new FileReader();
   reader.onload = function (e) {
     const rows = parseCSV(e.target.result);
-    // 跳過標題列
     const dataRows = rows.slice(1).filter(r => r.length >= 2 && r[0]);
     allEntries = dataRows;
     updateCount();
@@ -115,13 +114,19 @@ function displayResults(winners) {
     const item = document.createElement('div');
     item.className = 'winner-item';
     item.innerHTML = `
-      <span class="winner-account">🏆 第 ${i + 1} 名：@${w[0]}</span>
-      <div class="winner-comment">${escapeHtml(w[1] || '')}</div>
+      <div class="winner-rank">🏆 第 ${i + 1} 名</div>
+      <div class="winner-ig-row">
+        <span class="winner-label">IG 帳號</span>
+        <span class="winner-account">@${escapeHtml(w[0])}</span>
+      </div>
+      <div class="winner-comment-row">
+        <span class="winner-label">留言內容</span>
+        <div class="winner-comment">${escapeHtml(w[1] || '')}</div>
+      </div>
     `;
     list.appendChild(item);
   });
 
-  // 捲動至結果區
   box.scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -138,11 +143,12 @@ function copyResults() {
   const items = list.querySelectorAll('.winner-item');
   if (items.length === 0) return;
 
-  let text = '🎉 IG 抽獎得獎名單\n';
+  let text = '🎉 IG 抽獎得獎名單\n\n';
   items.forEach(item => {
+    const rank = item.querySelector('.winner-rank').textContent;
     const account = item.querySelector('.winner-account').textContent;
     const comment = item.querySelector('.winner-comment').textContent;
-    text += `${account}\n留言：${comment}\n---\n`;
+    text += `${rank}\nIG 帳號：${account}\n留言內容：${comment}\n\n`;
   });
 
   navigator.clipboard.writeText(text).then(() => {
