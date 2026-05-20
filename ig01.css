@@ -166,3 +166,64 @@ button:active {
     opacity: 0.85;
     transform: translateY(-1px);
 }
+
+
+/* ==== 中獎者分區顯示樣式 ==== */
+
+/* 名次標題 */
+.winner-rank {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #bc1888;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed #f0c0e0;
+}
+
+/* IG 帳號行 */
+.winner-ig-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+/* 留言內容行 */
+.winner-comment-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+/* 欄位標籤（IG 帳號 / 留言內容） */
+.winner-label {
+    flex-shrink: 0;
+    font-size: 0.75em;
+    font-weight: 700;
+    color: #fff;
+    background: var(--ig-gradient);
+    padding: 3px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+}
+
+/* IG 帳號文字 */
+.winner-account {
+    color: #bc1888;
+    font-weight: bold;
+    font-size: 1.05em;
+}
+
+/* 留言內容文字框 */
+.winner-comment {
+    flex: 1;
+    color: #444;
+    font-size: 0.95em;
+    line-height: 1.6;
+    background: #fcfcfc;
+    padding: 10px 12px;
+    border-radius: 6px;
+    border: 1px solid #f0f0f0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
