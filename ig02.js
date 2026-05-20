@@ -92,7 +92,6 @@ function startDraw() {
     return;
   }
 
-  // Fisher-Yates 洗牌後取前 N 名
   const shuffled = [...entries];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -110,19 +109,12 @@ function displayResults(winners) {
   box.style.display = 'block';
   list.innerHTML = '';
 
-  winners.forEach((w, i) => {
+  winners.forEach((w) => {
     const item = document.createElement('div');
     item.className = 'winner-item';
     item.innerHTML = `
-      <div class="winner-rank">🏆 第 ${i + 1} 名</div>
-      <div class="winner-ig-row">
-        <span class="winner-label">IG 帳號</span>
-        <span class="winner-account">@${escapeHtml(w[0])}</span>
-      </div>
-      <div class="winner-comment-row">
-        <span class="winner-label">留言內容</span>
-        <div class="winner-comment">${escapeHtml(w[1] || '')}</div>
-      </div>
+      <span class="winner-account">@${escapeHtml(w[0])}</span>
+      <div class="winner-comment">${escapeHtml(w[1] || '')}</div>
     `;
     list.appendChild(item);
   });
@@ -145,10 +137,9 @@ function copyResults() {
 
   let text = '🎉 IG 抽獎得獎名單\n\n';
   items.forEach(item => {
-    const rank = item.querySelector('.winner-rank').textContent;
     const account = item.querySelector('.winner-account').textContent;
     const comment = item.querySelector('.winner-comment').textContent;
-    text += `${rank}\nIG 帳號：${account}\n留言內容：${comment}\n\n`;
+    text += `${account}\n${comment}\n\n`;
   });
 
   navigator.clipboard.writeText(text).then(() => {
