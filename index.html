@@ -10,10 +10,16 @@
 
     <div class="card">
         <h2>IG 留言抽獎工具</h2>
-        
+
         <div class="input-group">
             <label style="display:block; margin-bottom:8px; font-weight:600;">上傳匯出的 CSV 檔案：</label>
             <input type="file" id="csvFile" accept=".csv">
+            <div id="participantCount" class="participant-count"></div>
+        </div>
+
+        <div class="input-group">
+            <label style="display:block; margin-bottom:8px; font-weight:600;">指定關鍵字（留誀必須包含，可留空）：</label>
+            <input type="text" id="keyword" placeholder="例：#抽獎 或 @超人" class="keyword-input">
         </div>
 
         <div class="controls">
@@ -25,7 +31,10 @@
         <div id="status"></div>
 
         <div id="resultBox" class="result-box">
-            <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎉 恭喜中獎者：</h3>
+            <div class="result-header">
+                <h3 style="border-bottom: 2px solid #eee; padding-bottom: 10px;">🎉 恐喜中獎者：</h3>
+                <button id="copyBtn" class="copy-btn" onclick="copyResults()">📋 複製得獎名單</button>
+            </div>
             <div id="winnerList"></div>
         </div>
     </div>
