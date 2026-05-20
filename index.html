@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IG 留言抽獎工具</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="card">
+    <h2 class="title">\ IG 留言抽獎工具 /</h2>
+    
+    <div class="input-group">
+        <label>上傳匯出的 CSV 檔案：</label>
+        <input type="file" id="csvFile" accept=".csv">
+    </div>
+
+    <div class="controls">
+        <label style="cursor: pointer;"><input type="checkbox" id="noRepeat" checked> 排除重複帳號</label>
+        <div>抽出人數：<input type="number" id="winnerCount" value="1" min="1"></div>
+    </div>
+
+    <div class="input-group">
+        <label>指定留言關鍵字 (選填)：</label>
+        <input type="text" id="keywordFilter" placeholder="範例：我想抽中 (若無限制請留空)" 
+        style="width: 100%; 
+            padding: 12px; 
+            border: 1px solid #dbdbdb; 
+            border-radius: 8px; box-sizing: border-box; 
+            background-color: #fafafa; 
+            font-size: 15px;">
+    </div>
+
+    <button id="drawButton" style="font-family: sans-serif;">✨ 開始抽獎</button>
+    <div id="status"></div>
+
+    <div id="resultBox" class="result-box">
+        <h3>🎉 恭喜中獎者：</h3>
+        <div id="winnerList"></div>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
